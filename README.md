@@ -28,6 +28,7 @@ When you jump to a definition via LSP, tuck automatically unfolds at the cursor.
 - Python
 - JavaScript
 - Rust
+- PHP
 
 PRs welcome for more languages - the queries are pretty simple.
 
