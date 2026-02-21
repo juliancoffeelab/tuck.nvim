@@ -4,6 +4,7 @@ local config = require('tuck.config')
 local fold = require('tuck.fold')
 
 local augroup = vim.api.nvim_create_augroup('Tuck', { clear = true })
+local last_line = nil
 
 local lsp_navigation_methods = {
   ['textDocument/definition'] = true,
@@ -48,6 +49,22 @@ local function setup_autocmds()
     group = augroup,
     callback = function(args)
       fold.invalidate_cache(args.buf)
+    end,
+  })
+
+  vim.api.nvim_create_autocmd('CursorMoved', {
+    group = augroup,
+    callback = function()
+      if not config.options.enabled or not config.options.auto_unfold then
+        return
+      end
+      local line = vim.fn.line('.')
+      if line ~= last_line then
+        last_line = line
+        if vim.fn.foldclosed('.') ~= -1 then
+          vim.cmd('silent! foldopen')
+        end
+      end
     end,
   })
 end

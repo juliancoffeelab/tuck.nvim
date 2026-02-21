@@ -13,12 +13,10 @@ Automatically fold function bodies so you can actually see your code structure.
 
 Inspired by [this article](https://matklad.github.io/2024/10/14/missing-ide-feature.html) from matklad - the idea is simple: function signatures are way more useful than function bodies when you're reading code. So let's fold the bodies by default.
 
-When you jump to a definition via LSP, tuck automatically unfolds at the cursor. Everything else stays tucked away.
-
 ## What it does
 
 - Folds top-level function/method bodies on file open
-- Unfolds at cursor when you use LSP navigation (go to definition, references, etc.)
+- Unfolds at cursor when you move your cursor to a fold or use LSP navigation (go to definition, references, etc.)
 - Uses Tree-sitter, so it actually understands your code
 
 ## Supported languages
@@ -59,6 +57,7 @@ use {
 ```lua
 require('tuck').setup({
   enabled = true,
+  auto_unfold = true, -- set to false if you want to disable auto unfold on cursor movement
   exclude_filetypes = { 'markdown', 'text' },
   exclude_paths = { 'vendor/*', 'node_modules/*' },
   integrations = {
