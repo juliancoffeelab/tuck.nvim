@@ -73,6 +73,10 @@ local function setup_integrations()
   if config.options.integrations.fzf_lua then
     require('tuck.integrations.fzf_lua').setup()
   end
+
+  if config.options.integrations.telescope then
+    require('tuck.integrations.telescope').setup()
+  end
 end
 
 function M.setup(opts)
@@ -104,6 +108,10 @@ function M.disable()
 
   if config.options.integrations.fzf_lua then
     require('tuck.integrations.fzf_lua').restore()
+  end
+
+  if config.options.integrations.telescope then
+    require('tuck.integrations.telescope').restore()
   end
 
   vim.notify('Tuck disabled', vim.log.levels.INFO)

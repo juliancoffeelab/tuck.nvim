@@ -10,6 +10,7 @@ M.defaults = {
   exclude_paths = {},
   integrations = {
     fzf_lua = false,
+    telescope = false,
   },
 }
 
