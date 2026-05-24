@@ -17,6 +17,13 @@ local subcommands = {
     require('tuck.fold').debug()
     local config = require('tuck.config')
     print('')
+    print('=== Config ===')
+    print('enabled: ' .. tostring(config.options.enabled))
+    print('manage_folds: ' .. tostring(config.options.manage_folds))
+    print('auto_unfold: ' .. tostring(config.options.auto_unfold))
+    print('navigation_unfold: ' .. tostring(config.options.navigation_unfold))
+    print('unfold_delay: ' .. tostring(config.options.unfold_delay))
+    print('')
     print('=== Integrations ===')
     print('fzf_lua enabled: ' .. tostring(config.options.integrations.fzf_lua))
     if config.options.integrations.fzf_lua then
@@ -29,7 +36,7 @@ function M.execute(args)
   local subcmd = args.fargs[1]
 
   if not subcmd then
-    vim.notify('Tuck: subcommand required (enable, disable, toggle, fold)', vim.log.levels.ERROR)
+    vim.notify('Tuck: subcommand required (enable, disable, toggle, fold, debug)', vim.log.levels.ERROR)
     return
   end
 

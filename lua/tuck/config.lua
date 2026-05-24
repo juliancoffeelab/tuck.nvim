@@ -2,7 +2,10 @@ local M = {}
 
 M.defaults = {
   enabled = true,
+  manage_folds = true,
   auto_unfold = true,
+  navigation_unfold = true,
+  unfold_delay = 50,
   exclude_filetypes = {},
   exclude_paths = {},
   integrations = {
@@ -10,7 +13,7 @@ M.defaults = {
   },
 }
 
-M.options = {}
+M.options = vim.deepcopy(M.defaults)
 
 function M.setup(opts)
   M.options = vim.tbl_deep_extend('force', {}, M.defaults, opts or {})
