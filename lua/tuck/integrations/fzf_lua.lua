@@ -10,18 +10,26 @@ end
 local function with_unfold(original_fn)
   return function(selected, opts)
     original_fn(selected, opts)
+    local config = require('tuck.config')
+    if not config.options.enabled or not config.options.navigation_unfold then
+      return
+    end
     vim.defer_fn(function()
       require('tuck.fold').unfold_at_cursor()
-    end, 50)
+    end, config.options.unfold_delay)
   end
 end
 
 local function with_unfold_jump(original_fn)
   return function(...)
     local result = original_fn(...)
+    local config = require('tuck.config')
+    if not config.options.enabled or not config.options.navigation_unfold then
+      return result
+    end
     vim.defer_fn(function()
       require('tuck.fold').unfold_at_cursor()
-    end, 50)
+    end, config.options.unfold_delay)
     return result
   end
 end
@@ -126,7 +134,9 @@ function M.debug()
 
   print('')
   print('Checking if utils.jump_to_location is wrapped:')
-  local jump_wrapped = originals.jump_to_location ~= nil and utils_ok and utils.jump_to_location ~= originals.jump_to_location
+  local jump_wrapped = originals.jump_to_location ~= nil
+    and utils_ok
+    and utils.jump_to_location ~= originals.jump_to_location
   print(string.format('  jump_to_location: %s', jump_wrapped and 'WRAPPED' or 'NOT WRAPPED'))
 
   print('')

@@ -57,7 +57,10 @@ use {
 ```lua
 require('tuck').setup({
   enabled = true,
+  manage_folds = true, -- set to false when another plugin, such as nvim-ufo, owns fold state
   auto_unfold = true, -- set to false if you want to disable auto unfold on cursor movement
+  navigation_unfold = true, -- unfold after LSP/fzf navigation lands on a folded body
+  unfold_delay = 50,
   exclude_filetypes = { 'markdown', 'text' },
   exclude_paths = { 'vendor/*', 'node_modules/*' },
   integrations = {
@@ -84,7 +87,30 @@ When you navigate via LSP (go to definition, references, etc.), tuck automatical
 - Native LSP navigation (`vim.lsp.buf.definition()`, etc.)
 - fzf-lua LSP pickers (with the integration enabled)
 
+Set `manage_folds = false` when you want tuck to find body fold ranges and handle unfold behavior, but you do not want it to set `foldmethod`, `foldexpr`, `foldlevel`, or close folds itself.
+
 ## Integrations
+
+### nvim-ufo
+
+To use tuck as a body-fold provider for [nvim-ufo](https://github.com/kevinhwang91/nvim-ufo), disable tuck's fold management and wire its provider into ufo:
+
+```lua
+require('tuck').setup({
+  manage_folds = false,
+})
+
+require('ufo').setup({
+  provider_selector = function()
+    return require('tuck').ufo_provider
+  end,
+  close_fold_kinds_for_ft = {
+    default = { 'body' },
+  },
+})
+```
+
+In this setup, ufo creates and renders folds. tuck only decides which ranges are body folds and keeps the navigation-aware unfolding behavior.
 
 ### fzf-lua
 

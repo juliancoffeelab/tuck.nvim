@@ -22,7 +22,7 @@ local function setup_autocmds()
     callback = function(args)
       if config.options.enabled then
         vim.schedule(function()
-          if vim.api.nvim_buf_is_valid(args.buf) then
+          if vim.api.nvim_buf_is_valid(args.buf) and config.options.manage_folds then
             fold.apply_folds(args.buf)
           end
         end)
@@ -33,14 +33,14 @@ local function setup_autocmds()
   vim.api.nvim_create_autocmd('LspRequest', {
     group = augroup,
     callback = function(args)
-      if not config.options.enabled then
+      if not config.options.enabled or not config.options.navigation_unfold then
         return
       end
       local request = args.data and args.data.request
       if request and lsp_navigation_methods[request.method] then
         vim.defer_fn(function()
           fold.unfold_at_cursor()
-        end, 50)
+        end, config.options.unfold_delay)
       end
     end,
   })
@@ -80,7 +80,7 @@ function M.setup(opts)
   setup_autocmds()
   setup_integrations()
 
-  if config.options.enabled then
+  if config.options.enabled and config.options.manage_folds then
     local bufnr = vim.api.nvim_get_current_buf()
     if vim.bo[bufnr].filetype ~= '' then
       fold.apply_folds(bufnr)
@@ -91,7 +91,9 @@ end
 function M.enable()
   config.options.enabled = true
   setup_autocmds()
-  fold.apply_folds()
+  if config.options.manage_folds then
+    fold.apply_folds()
+  end
   vim.notify('Tuck enabled', vim.log.levels.INFO)
 end
 
@@ -114,5 +116,8 @@ function M.toggle()
     M.enable()
   end
 end
+
+M.ufo_provider = fold.ufo_provider
+M.get_ranges = fold.get_ranges
 
 return M
