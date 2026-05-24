@@ -59,12 +59,13 @@ require('tuck').setup({
   enabled = true,
   manage_folds = true, -- set to false when another plugin, such as nvim-ufo, owns fold state
   auto_unfold = true, -- set to false if you want to disable auto unfold on cursor movement
-  navigation_unfold = true, -- unfold after LSP/fzf navigation lands on a folded body
+  navigation_unfold = true, -- unfold after LSP/fzf/telescope navigation lands on a folded body
   unfold_delay = 50,
   exclude_filetypes = { 'markdown', 'text' },
   exclude_paths = { 'vendor/*', 'node_modules/*' },
   integrations = {
     fzf_lua = false,
+    telescope = false,
   },
 })
 ```
@@ -127,6 +128,20 @@ require('tuck').setup({
 This patches fzf-lua's file actions (`file_edit`, `file_split`, `file_vsplit`, etc.) and LSP jump functions to unfold at cursor after jumping. Works with all fzf-lua pickers - `files`, `grep`, `lsp_definitions`, you name it.
 
 Your existing fzf-lua keybinds and config are preserved.
+
+### telescope.nvim
+
+If you use [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim), enable the integration to unfold after opening locations from Telescope pickers:
+
+```lua
+require('tuck').setup({
+  integrations = {
+    telescope = true,
+  },
+})
+```
+
+This wraps Telescope's shared file-open action, so the default open, split, vsplit, and tab actions all unfold at cursor after jumping. It works for file pickers, grep pickers, and LSP pickers that land inside a folded body.
 
 ## Troubleshooting
 

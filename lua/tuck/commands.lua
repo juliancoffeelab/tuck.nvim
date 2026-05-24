@@ -29,6 +29,10 @@ local subcommands = {
     if config.options.integrations.fzf_lua then
       require('tuck.integrations.fzf_lua').debug()
     end
+    print('telescope enabled: ' .. tostring(config.options.integrations.telescope))
+    if config.options.integrations.telescope then
+      require('tuck.integrations.telescope').debug()
+    end
   end,
 }
 
