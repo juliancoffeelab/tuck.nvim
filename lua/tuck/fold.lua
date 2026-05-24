@@ -94,6 +94,7 @@ local function normalize_ranges(fold_ranges)
     local key = table.concat({
       range.start_line,
       range.end_line,
+      range.body_start_line,
       range.owner_start_line,
       range.owner_end_line,
       range.kind,
@@ -163,16 +164,17 @@ local function get_fold_ranges(bufnr)
 
     if owner and fold then
       local owner_start_line, owner_end_line = node_range(owner)
-      local start_line, end_line = node_range(fold)
-      if end_line > start_line then
+      local body_start_line, end_line = node_range(fold)
+      if end_line > owner_start_line then
         table.insert(fold_ranges, {
-          start_line = start_line,
+          start_line = owner_start_line,
           end_line = end_line,
+          body_start_line = body_start_line,
           kind = 'body',
           owner_start_line = owner_start_line,
           owner_end_line = owner_end_line,
           trigger_start_line = owner_start_line,
-          trigger_end_line = start_line,
+          trigger_end_line = body_start_line,
         })
       end
     else
@@ -362,7 +364,7 @@ function M.debug(bufnr)
       '  '
         .. i
         .. ': body '
-        .. range.start_line
+        .. range.body_start_line
         .. '-'
         .. range.end_line
         .. ', owner '
