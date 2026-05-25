@@ -52,6 +52,13 @@ local function setup_autocmds()
     end,
   })
 
+  vim.api.nvim_create_autocmd('BufWipeout', {
+    group = augroup,
+    callback = function(args)
+      fold.forget_buffer(args.buf)
+    end,
+  })
+
   vim.api.nvim_create_autocmd('User', {
     group = augroup,
     pattern = 'GitSignsUpdate',

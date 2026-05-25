@@ -5,6 +5,7 @@ local config = require('tuck.config')
 local query_cache = {}
 local range_cache = {}
 local warned = {}
+local initialized_buffers = {}
 local get_fold_ranges
 
 local function warn_once(key, message)
@@ -269,10 +270,10 @@ function M.apply_folds(bufnr)
   vim.wo.foldexpr = "v:lua.require'tuck.fold'.foldexpr(v:lnum)"
   vim.wo.foldenable = true
 
-  if vim.b[bufnr].tuck_initialized then
+  if initialized_buffers[bufnr] then
     return
   end
-  vim.b[bufnr].tuck_initialized = true
+  initialized_buffers[bufnr] = true
 
   vim.schedule(function()
     if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_get_current_buf() == bufnr then
@@ -288,7 +289,7 @@ end
 function M.reset_folds(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
   M.invalidate_cache(bufnr)
-  vim.b[bufnr].tuck_initialized = nil
+  initialized_buffers[bufnr] = nil
 
   if not config.options.manage_folds then
     return
@@ -316,9 +317,9 @@ function M.refold(bufnr)
     return
   end
 
-  vim.b[bufnr].tuck_initialized = nil
+  initialized_buffers[bufnr] = nil
   vim.cmd('silent! normal! zM')
-  vim.b[bufnr].tuck_initialized = true
+  initialized_buffers[bufnr] = true
 end
 
 function M.unfold_at_cursor()
@@ -351,6 +352,12 @@ end
 
 function M.get_ranges(bufnr)
   return get_fold_ranges(bufnr)
+end
+
+--- Forget one buffer's cached fold state.
+function M.forget_buffer(bufnr)
+  range_cache[bufnr] = nil
+  initialized_buffers[bufnr] = nil
 end
 
 --- Reopen folds that were held open for changed hunks.
