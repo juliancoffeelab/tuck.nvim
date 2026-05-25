@@ -10,16 +10,19 @@ M.defaults = {
   exclude_paths = {},
   integrations = {
     fzf_lua = false,
+    gitsigns = false,
     telescope = false,
   },
 }
 
 M.options = vim.deepcopy(M.defaults)
 
+--- Merge user options with defaults.
 function M.setup(opts)
   M.options = vim.tbl_deep_extend('force', {}, M.defaults, opts or {})
 end
 
+--- Check whether the buffer should be excluded.
 function M.is_excluded(bufnr)
   bufnr = bufnr or 0
   local ft = vim.bo[bufnr].filetype

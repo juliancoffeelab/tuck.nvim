@@ -52,6 +52,28 @@ local function setup_autocmds()
     end,
   })
 
+  vim.api.nvim_create_autocmd('User', {
+    group = augroup,
+    pattern = 'GitSignsUpdate',
+    callback = function(args)
+      if not config.options.enabled or not config.options.integrations.gitsigns then
+        return
+      end
+
+      local bufnr = args.data and args.data.buffer
+      if bufnr then
+        fold.reveal_changed_hunks(bufnr)
+        return
+      end
+
+      for _, loaded_bufnr in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(loaded_bufnr) then
+          fold.reveal_changed_hunks(loaded_bufnr)
+        end
+      end
+    end,
+  })
+
   vim.api.nvim_create_autocmd('CursorMoved', {
     group = augroup,
     callback = function()
