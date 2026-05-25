@@ -5,6 +5,7 @@ local config = require('tuck.config')
 local query_cache = {}
 local range_cache = {}
 local warned = {}
+local get_fold_ranges
 
 local function warn_once(key, message)
   if warned[key] then
@@ -116,7 +117,7 @@ local function normalize_ranges(fold_ranges)
   return normalized
 end
 
-local function get_fold_ranges(bufnr)
+get_fold_ranges = function(bufnr)
   bufnr = bufnr or vim.api.nvim_get_current_buf()
 
   if config.is_excluded(bufnr) then
@@ -277,6 +278,9 @@ function M.apply_folds(bufnr)
     if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_get_current_buf() == bufnr then
       vim.wo.foldlevel = 0
       vim.cmd('silent! normal! zM')
+      if config.options.integrations.gitsigns then
+        vim.b[bufnr].tuck_pending_gitsigns_reveal = true
+      end
     end
   end)
 end
@@ -347,6 +351,44 @@ end
 
 function M.get_ranges(bufnr)
   return get_fold_ranges(bufnr)
+end
+
+--- Reopen folds that were held open for changed hunks.
+function M.reveal_changed_hunks(bufnr)
+  bufnr = bufnr or vim.api.nvim_get_current_buf()
+  if not vim.b[bufnr].tuck_pending_gitsigns_reveal then
+    return
+  end
+
+  local gitsigns = package.loaded.gitsigns
+  if not config.options.integrations.gitsigns
+    or not gitsigns
+    or type(gitsigns.get_hunks) ~= 'function'
+  then
+    return
+  end
+
+  local hunks = gitsigns.get_hunks(bufnr)
+  if hunks == nil then
+    return
+  end
+
+  vim.b[bufnr].tuck_pending_gitsigns_reveal = nil
+
+  for _, range in ipairs(get_fold_ranges(bufnr)) do
+    for _, hunk in ipairs(hunks) do
+      local hunk_start = math.max(hunk.added.start, 1)
+      local hunk_end = math.max(
+        hunk_start + math.max(hunk.added.count, 1) - 1,
+        hunk_start
+      )
+
+      if range.end_line >= hunk_start and range.start_line <= hunk_end then
+        pcall(vim.cmd, ('silent! %dfoldopen!'):format(range.start_line))
+        break
+      end
+    end
+  end
 end
 
 function M.debug(bufnr)
