@@ -126,8 +126,10 @@ function M.apply_folds(bufnr)
 
   vim.schedule(function()
     if vim.api.nvim_buf_is_valid(bufnr) and vim.api.nvim_get_current_buf() == bufnr then
-      vim.wo.foldlevel = 0
-      vim.cmd('silent! normal! zM')
+      if config.options.fold_on_open then
+        vim.wo.foldlevel = 0
+        vim.cmd('silent! normal! zM')
+      end
     end
   end)
 end

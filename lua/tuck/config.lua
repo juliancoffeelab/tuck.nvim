@@ -2,6 +2,7 @@ local M = {}
 
 M.defaults = {
   enabled = true,
+  fold_on_open = true,
   auto_unfold = true,
   exclude_filetypes = {},
   exclude_paths = {},
